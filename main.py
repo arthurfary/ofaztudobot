@@ -5,7 +5,6 @@ from discord.ext import commands
 from cogs.greetings_cog import Greetings
 
 
-
 # Get the Discord token from the environment variables
 TOKEN = os.getenv('DISCORD_TOKEN')
 
@@ -25,4 +24,5 @@ async def on_ready():
     print('> Running!')
 
 # Run the bot with your bot token from the .env file
-bot.run(TOKEN)
+if __name__ == '__name__':
+    bot.run(TOKEN)
