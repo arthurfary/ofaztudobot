@@ -13,4 +13,5 @@ class Greetings(commands.Cog):
     async def ola(self, ctx):
         await ctx.send(f'Olá {ctx.message.author.name}!')
 
+
     # mais commandos de oi
