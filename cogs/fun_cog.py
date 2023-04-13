@@ -14,7 +14,7 @@ class Fun(commands.Cog):
     @commands.command()
     async def penis(self, ctx):
         '''
-        Mostra o tamnho (real) do pipi da pessoa
+        Mostra o tamanho (real) do pipi da pessoa
         '''
         ppsize = 15
         penis = '8'
