@@ -44,5 +44,18 @@ class Fun(commands.Cog):
         '''
         await ctx.send(f'{ctx.message.author.name} deu um tapa em {name} por {reason} :clap:')
 
+    @commands.command()
+    async def voteban(self, ctx,name: str = commands.parameter(description="Nome de quem MERECE o ban"),):
+
+        '''
+        Vote para Banir um membro
+        '''
+        
+
+     
+
+        await ctx.send(f'Ban votado para {name}')
+
+
 
     # mais commandos de oi
