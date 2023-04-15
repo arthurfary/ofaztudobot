@@ -2,8 +2,9 @@ import os
 import discord
 from discord.ext import commands
 
-from cogs.greetings_cog import Greetings
-from cogs.fun_cog import Fun
+from cogs.greetings.greetings_cog import Greetings
+from cogs.fun.fun_cog import Fun
+from cogs.currency.currency_cog import Currency
 
 # Get the Discord token from the environment variables
 TOKEN = os.getenv('DISCORD_TOKEN')
@@ -20,6 +21,7 @@ async def on_ready():
 
     await bot.add_cog(Greetings(bot))
     await bot.add_cog(Fun(bot))
+    await bot.add_cog(Currency(bot))
 
     print('> Cogs loaded!')
     print('> Bot ready!')
