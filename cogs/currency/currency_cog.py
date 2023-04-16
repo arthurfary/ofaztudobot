@@ -1,5 +1,6 @@
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
+import datetime
 import json
 
 class Currency(commands.Cog):
@@ -13,6 +14,8 @@ class Currency(commands.Cog):
 
         self.currency_data = self.get_data()  # Store currency data in-memory as a dictionary
         self.currency_name = "Gd"
+
+        self.claimed = {}
 
     def get_data(self):
         try:
@@ -43,14 +46,22 @@ class Currency(commands.Cog):
         '''
         return str(ctx.message.author.id)
 
+    def add_money(self, uid, amount):
+        self.currency_data['users'][uid]['money'] += amount
+
     @commands.command()
     async def cjoin(self, ctx):
+        '''
+        Cria conta na economia do server
+        '''
+
         uid = self.get_uid(ctx)
 
         if not self.is_user(uid):
             self.currency_data['users'][uid] = {
                 "user_id": uid,
                 "money": 1000,
+                "last_claimed": None,
                 "shares": {}
             }
             self.save_data()
@@ -61,18 +72,44 @@ class Currency(commands.Cog):
 
     @commands.command()
     async def bal(self, ctx):
+        '''
+        Mostra o dinheiro na sua conta
+        '''
+
         uid = self.get_uid(ctx)
         if self.is_user(uid):
-            await ctx.send(f'B:{self.currency_data["users"][uid]["money"]}{self.currency_name}')
+            await ctx.send(f'Your balance is currently: {self.currency_data["users"][uid]["money"]}{self.currency_name}')
         else:
             await ctx.send(f':x:')
 
     @commands.command()
-    async def earn(self, ctx, amount: int):
-        # Implement logic for earning currency
-        pass
+    async def checkin(self, ctx):
+        '''
+        Faça o checkin diário para ganhar pontos
+        '''
 
-    @commands.command()
-    async def spend(self, ctx, amount: int):
-        # Implement logic for spending currency
-        pass
+        uid = self.get_uid(ctx)
+
+        if self.is_user(uid):
+            now = datetime.datetime.now()
+            today = now.date()
+            
+            last_claimed = self.currency_data['users'][uid]['last_claimed']
+        
+            if last_claimed is None or datetime.datetime.strptime(last_claimed, '%Y/%m/%d').date() < today:
+                self.add_money(uid, 10)
+                self.claimed[uid] = today
+
+                today_str = today.strftime('%Y/%m/%d')
+                self.currency_data['users'][uid]['last_claimed'] = today_str
+
+                self.save_data()
+
+                await ctx.send('Claimed!')
+
+            else:
+                await ctx.send('Already Claimed')
+
+        else:
+            await ctx.send('No account found')
+    
