@@ -1,4 +1,5 @@
 import os
+from dotenv import load_dotenv
 import discord
 from discord.ext import commands
 
@@ -7,6 +8,7 @@ from cogs.fun.fun_cog import Fun
 from cogs.currency.currency_cog import Currency
 
 # Get the Discord token from the environment variables
+load_dotenv()
 TOKEN = os.getenv('DISCORD_TOKEN')
 
 # Create a bot instance with a command prefix
