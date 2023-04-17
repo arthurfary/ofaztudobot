@@ -3,6 +3,7 @@ from discord.ext import commands, tasks
 from discord.ext.commands.converter import MemberConverter
 import datetime
 import json
+import random
 
 class Currency(commands.Cog):
     '''
@@ -47,6 +48,9 @@ class Currency(commands.Cog):
         Returns User Id in a string
         '''
         return str(ctx.message.author.id)
+
+    def get_money(self, uid) -> str:
+        return self.currency_data['users'][uid]['money']
 
     def tranfer_money(self, from_uid, to_uid, amount):
         from_uid = str(from_uid)
@@ -167,3 +171,49 @@ class Currency(commands.Cog):
             await ctx.send(f'Alguma das contas não está registrada!')
 
         self.save_data()
+
+    @commands.command()
+    async def criaacao(self, ctx, symbol: str, invest: float, quant: int):
+        uid = self.get_uid(ctx)
+        stock_symbol = f'{symbol.upper()}'
+
+        if not self.is_user(uid):
+            return ctx.send('Conta nao registrada')
+
+        # se o investimento for maior que o dobro de dinheiro
+        if invest > self.get_money(uid) / 2 or invest <= 0:
+            await ctx.send('Investimento invalido! tem que ter mais que o dobro do valor de investimento em sua conta') 
+            return False
+
+        if len(symbol) != 5 and symbol[-1].isdigit() and not symbol[0:3].isdigit():
+            await ctx.send(f'Nome da ação dever ter 4 letras e um numero ex: YUTB5 (nome dado: {name})') 
+            return False
+        
+        # checa se a pessoa ja tem mais de duas açoes criadas
+        occourences = []
+        for stock in self.currency_data['stocks']:
+            if self.currency_data['stocks'][stock]['owner'] == self.get_uid(ctx):
+                occourences.append(stock)
+        
+        if len(occourences) >= 2:
+            await ctx.send(f'Maximo de duas ações por pessoa! Você tem: {occourences[0]}, {occourences[1]}') 
+            return False
+
+    
+        if stock_symbol in self.currency_data['stocks']:
+            await ctx.send(f'{stock_symbol} já registrado, use outro nome!')
+            return False
+
+        else:
+            
+            self.rmv_money(uid, invest)
+
+            self.currency_data['stocks'][stock_symbol] = {
+                'owner': uid,
+                'amount': quant,
+                'price': invest/quant,
+            }
+            
+            self.save_data()
+            await ctx.send(f'Ação {stock_symbol} Criada!')
+            return True
