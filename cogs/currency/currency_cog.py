@@ -1,5 +1,6 @@
 import discord
 from discord.ext import commands, tasks
+from discord.ext.commands.converter import MemberConverter
 import datetime
 import json
 
@@ -30,10 +31,11 @@ class Currency(commands.Cog):
         with open(self.path_to_json, "w") as f:
             json.dump(self.currency_data, f, indent=4)
    
-    def is_user(self, uid) -> bool:
+    def is_user(self, uid: str) -> bool:
         '''
         returns bool if uid is found in 'users'
         '''
+        uid = str(uid)
 
         if uid in self.currency_data['users']:
             return True
@@ -46,8 +48,35 @@ class Currency(commands.Cog):
         '''
         return str(ctx.message.author.id)
 
+    def tranfer_money(self, from_uid, to_uid, amount):
+        from_uid = str(from_uid)
+        to_uid = str(to_uid)
+        amount = int(amount)
+
+        if self.currency_data['users'][from_uid]['money'] >= amount and amount >= 0:
+            self.rmv_money(from_uid, amount)
+            self.add_money(to_uid, amount)
+            return True
+        else:
+            return False
+
     def add_money(self, uid, amount):
+        uid = str(uid)
+        amount = int(amount)
+
         self.currency_data['users'][uid]['money'] += amount
+        return True
+
+    def rmv_money(self, uid, amount):
+        uid = str(uid)
+        amount = int(amount)
+
+        if self.currency_data['users'][uid]['money'] >= amount:
+            self.currency_data['users'][uid]['money'] -= amount
+            return True
+        
+        else: 
+            return False
 
     @commands.command()
     async def cjoin(self, ctx):
@@ -78,7 +107,7 @@ class Currency(commands.Cog):
 
         uid = self.get_uid(ctx)
         if self.is_user(uid):
-            await ctx.send(f'Your balance is currently: {self.currency_data["users"][uid]["money"]}{self.currency_name}')
+            await ctx.send(f'Your balance is currently: {self.currency_data["users"][uid]["money"]} {self.currency_name}')
         else:
             await ctx.send(f':x:')
 
@@ -113,3 +142,28 @@ class Currency(commands.Cog):
         else:
             await ctx.send('No account found')
     
+    @commands.command()
+    async def trans(self, ctx, amount, account: MemberConverter):
+        '''
+        Transfere dinheiro para conta de alguem
+
+        Usage:
+            !trans quantidade pessoa
+        '''
+        # Member converter converte o txt para um discord member
+        # pra pegar o .id VV
+        account_uid = account.id
+        uid = self.get_uid(ctx)     
+
+        if self.is_user(uid) and self.is_user(account_uid):
+
+            if self.tranfer_money(uid, account_uid, amount):
+                await ctx.send(f'Transfered {amount} to {account.name}')
+
+            else:
+                await ctx.send(f'Dinhero insuficiente ou inválido.')
+
+        else:
+            await ctx.send(f'Alguma das contas não está registrada!')
+
+        self.save_data()
