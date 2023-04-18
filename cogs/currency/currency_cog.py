@@ -7,7 +7,7 @@ import random
 
 class Currency(commands.Cog):
     '''
-    Cog that handles currency related commands
+    cog que lida com comandos relacionado com dinheiro
     '''
     def __init__(self, bot):
         self.bot = bot
@@ -34,7 +34,7 @@ class Currency(commands.Cog):
    
     def is_user(self, uid: str) -> bool:
         '''
-        returns bool if uid is found in 'users'
+        retorna bool se uid for encontrado em  'users'
         '''
         uid = str(uid)
 
@@ -45,7 +45,7 @@ class Currency(commands.Cog):
 
     def get_uid(self, ctx) -> str:
         '''
-        Returns User Id in a string
+        Retorna User Id em string
         '''
         return str(ctx.message.author.id)
 
@@ -111,7 +111,7 @@ class Currency(commands.Cog):
 
         uid = self.get_uid(ctx)
         if self.is_user(uid):
-            await ctx.send(f'Your balance is currently: {self.currency_data["users"][uid]["money"]} {self.currency_name}')
+            await ctx.send(f'Sua Carteira tem atualmente: {self.currency_data["users"][uid]["money"]} {self.currency_name}')
         else:
             await ctx.send(f':x:')
 
@@ -138,20 +138,20 @@ class Currency(commands.Cog):
 
                 self.save_data()
 
-                await ctx.send('Claimed!')
+                await ctx.send('Reivindicou!')
 
             else:
-                await ctx.send('Already Claimed')
+                await ctx.send('Já reivindicado')
 
         else:
-            await ctx.send('No account found')
+            await ctx.send('Sem conta')
     
     @commands.command()
     async def trans(self, ctx, amount, account: MemberConverter):
         '''
         Transfere dinheiro para conta de alguem
 
-        Usage:
+        Uso:
             !trans quantidade pessoa
         '''
         # Member converter converte o txt para um discord member
@@ -162,7 +162,7 @@ class Currency(commands.Cog):
         if self.is_user(uid) and self.is_user(account_uid):
 
             if self.tranfer_money(uid, account_uid, amount):
-                await ctx.send(f'Transfered {amount} to {account.name}')
+                await ctx.send(f'Transferido {amount} para {account.name}')
 
             else:
                 await ctx.send(f'Dinhero insuficiente ou inválido.')
