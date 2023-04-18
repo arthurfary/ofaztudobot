@@ -173,7 +173,7 @@ class Currency(commands.Cog):
         self.save_data()
 
     @commands.command()
-    async def criaacao(self, ctx, symbol: str, invest: float, quant: int):
+    async def acria(self, ctx, symbol: str, invest: float, quant: int):
         uid = self.get_uid(ctx)
         stock_symbol = f'{symbol.upper()}'
 
@@ -212,8 +212,44 @@ class Currency(commands.Cog):
                 'owner': uid,
                 'amount': quant,
                 'price': invest/quant,
+                'original_investiment': invest,
+                'original_price': invest/quant,
+                'original_amount': quant,
             }
             
             self.save_data()
             await ctx.send(f'Ação {stock_symbol} Criada!')
             return True
+
+    @commands.command()
+    async def ainfo(self, ctx, symbol: str = None):
+        uid = self.get_uid(ctx)
+
+        if symbol:
+            stock = str(symbol.upper())
+
+            if stock in self.currency_data['stocks']:
+                embed = discord.Embed(title=stock)
+
+                user = await self.bot.fetch_user(self.currency_data["stocks"][stock]["owner"])
+                embed.add_field(name='Dono:', value=f'{user.name}')
+                embed.add_field(name='Quantidade disponível:', value=f'{self.currency_data["stocks"][stock]["amount"]}')
+                embed.add_field(name='Preço por ação:', value=f'{self.currency_data["stocks"][stock]["price"]}')
+                embed.add_field(name='Investimento original:', value=f'{self.currency_data["stocks"][stock]["original_investiment"]}')
+                embed.add_field(name='Preço original:', value=f'{self.currency_data["stocks"][stock]["original_price"]}')
+                embed.add_field(name='Quantidade original:', value=f'{self.currency_data["stocks"][stock]["original_amount"]}')
+                
+                await ctx.send(embed=embed)
+            
+            else:
+                await ctx.send(f'Ação "{stock}" não encontrada!')
+        else:
+            embed = discord.Embed(title="Ações")
+            for stock in self.currency_data['stocks']:
+                embed.add_field(name=stock, value=f'Custa: {self.currency_data["stocks"][stock]["price"]}')
+                
+            await ctx.send(embed=embed)
+
+    @commands.command()
+    async def acompra(self, ctx, symbol: str, amount: int):
+        pass
