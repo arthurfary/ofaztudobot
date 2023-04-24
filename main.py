@@ -6,6 +6,8 @@ from discord.ext import commands
 from cogs.greetings.greetings_cog import Greetings
 from cogs.fun.fun_cog import Fun
 from cogs.currency.currency_cog import Currency
+from cogs.management.management_cog import Management
+from cogs.error_handler.error_handler_cog import ErrorHandler
 
 # Get the Discord token from the environment variables
 load_dotenv()
@@ -24,6 +26,9 @@ async def on_ready():
     await bot.add_cog(Greetings(bot))
     await bot.add_cog(Fun(bot))
     await bot.add_cog(Currency(bot))
+    await bot.add_cog(Management(bot))
+
+    await bot.add_cog(ErrorHandler(bot))
 
     print('> Cogs loaded!')
     print('> Bot ready!')
